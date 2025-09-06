@@ -58,6 +58,28 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-secondary": "var(--gradient-secondary)",
+        "gradient-accent": "var(--gradient-accent)",
+      },
+      boxShadow: {
+        "elegant": "var(--shadow-elegant)",
+        "card": "var(--shadow-card)",
+        "glow": "var(--shadow-glow)",
+      },
+      backdropBlur: {
+        "glass": "blur(12px)",
+      },
+      backgroundColor: {
+        "glass": "var(--glass-bg)",
+      },
+      borderColor: {
+        "glass": "var(--glass-border)",
+      },
+      transitionProperty: {
+        "smooth": "var(--transition-smooth)",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
