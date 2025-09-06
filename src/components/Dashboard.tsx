@@ -10,8 +10,7 @@ export const Dashboard = () => {
   const stats = getStats();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-8">
+    <div className="space-y-8">
         <DashboardHeader />
         
         {/* Stats Grid */}
@@ -55,7 +54,6 @@ export const Dashboard = () => {
 
         {/* Full Headlines Table */}
         <HeadlinesTable headlines={mockHeadlines} />
-      </div>
     </div>
   );
 };
