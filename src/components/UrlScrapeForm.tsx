@@ -6,17 +6,23 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Globe, Play, Plus, X, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Globe, Play, Plus, X, Clock, CheckCircle, AlertCircle, Search } from "lucide-react";
 
 export const UrlScrapeForm = () => {
   const { toast } = useToast();
   const [url, setUrl] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [savedUrls, setSavedUrls] = useState([
     { id: 1, url: "https://techcrunch.com", status: "active", lastScrape: "2 mins ago" },
     { id: 2, url: "https://reuters.com", status: "active", lastScrape: "5 mins ago" },
     { id: 3, url: "https://bloomberg.com", status: "paused", lastScrape: "1 hour ago" },
   ]);
+
+  // Filter URLs based on search term
+  const filteredUrls = savedUrls.filter(item =>
+    item.url.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleSubmitUrl = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,7 +143,25 @@ export const UrlScrapeForm = () => {
       {/* Saved URLs List */}
       <Card className="p-6 bg-card/50 backdrop-blur-glass border border-border/50">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-card-foreground">Active Scraping URLs</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-card-foreground">Active Scraping URLs</h3>
+            <div className="text-sm text-muted-foreground">
+              {filteredUrls.length} of {savedUrls.length} URLs
+            </div>
+          </div>
+          
+          {/* Search Input */}
+          {savedUrls.length > 0 && (
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search URLs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          )}
           
           {savedUrls.length === 0 ? (
             <div className="text-center py-8">
@@ -145,9 +169,15 @@ export const UrlScrapeForm = () => {
               <p className="text-muted-foreground">No URLs added yet</p>
               <p className="text-sm text-muted-foreground">Add a URL above to start scraping</p>
             </div>
+          ) : filteredUrls.length === 0 ? (
+            <div className="text-center py-8">
+              <Search className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">No URLs found</p>
+              <p className="text-sm text-muted-foreground">Try adjusting your search term</p>
+            </div>
           ) : (
             <div className="space-y-3">
-              {savedUrls.map((item) => (
+              {filteredUrls.map((item) => (
                 <div 
                   key={item.id}
                   className="flex items-center justify-between p-4 bg-accent/20 rounded-lg border border-border/30 hover:bg-accent/30 transition-colors"
