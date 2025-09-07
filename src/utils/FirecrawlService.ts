@@ -1,4 +1,4 @@
-import FirecrawlApp from '@mendable/firecrawl-js';
+
 
 interface ErrorResponse {
   success: false;
@@ -19,11 +19,9 @@ type CrawlResponse = CrawlStatusResponse | ErrorResponse;
 
 export class FirecrawlService {
   private static API_KEY_STORAGE_KEY = 'firecrawl_api_key';
-  private static firecrawlApp: FirecrawlApp | null = null;
 
   static saveApiKey(apiKey: string): void {
     localStorage.setItem(this.API_KEY_STORAGE_KEY, apiKey);
-    this.firecrawlApp = new FirecrawlApp({ apiKey });
     console.log('API key saved successfully');
   }
 
@@ -34,10 +32,15 @@ export class FirecrawlService {
   static async testApiKey(apiKey: string): Promise<boolean> {
     try {
       console.log('Testing API key with Firecrawl API');
-      this.firecrawlApp = new FirecrawlApp({ apiKey });
-      // A simple test scrape to verify the API key
-      const testResponse = await this.firecrawlApp.scrape('https://example.com');
-      return !!testResponse;
+      const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ url: 'https://example.com', formats: ['markdown'], onlyMainContent: true }),
+      });
+      return res.ok;
     } catch (error) {
       console.error('Error testing API key:', error);
       return false;
@@ -52,25 +55,33 @@ export class FirecrawlService {
 
     try {
       console.log('Making scrape request to Firecrawl API');
-      if (!this.firecrawlApp) {
-        this.firecrawlApp = new FirecrawlApp({ apiKey });
+      const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ url, formats: ['markdown', 'html'], onlyMainContent: true }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || data?.success === false) {
+        return {
+          success: false,
+          error: data?.error || 'Failed to scrape URL',
+        };
       }
 
-      const scrapeResponse = await this.firecrawlApp.scrape(url, {
-        formats: ['markdown', 'html'],
-        onlyMainContent: true
-      });
-
-      console.log('Scrape successful:', scrapeResponse);
-      return { 
+      console.log('Scrape successful:', data);
+      return {
         success: true,
-        data: scrapeResponse 
+        data,
       };
     } catch (error) {
       console.error('Error during scrape:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to connect to Firecrawl API' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to connect to Firecrawl API',
       };
     }
   }
